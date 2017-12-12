@@ -4,6 +4,7 @@
 import sys
 import numpy as np
 import json
+from prettytable import PrettyTable
 
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.linear_model import LogisticRegression
@@ -18,13 +19,20 @@ from nltk.stem.snowball import *
 #stemmer  = DutchStemmer()
 #analyzer = CountVectorizer().build_analyzer()
 
-# as found on 'http://stackoverflow.com/questions/11116697/how-to-get-most-informative-features-for-scikit-learn-classifiers'
-def show_most_important_features(vectorizer, clf, n=20):
-	feature_names = vectorizer.get_feature_names()
-	coefs_with_nfs = sorted(zip(clf.coef_[0], feature_names))
-	top = zip(coefs_with_nfs[:n], coefs_with_nfs[:-(n+1):-1])
-	for (coef_1,fn_1), (coef_2, fn_2) in top:
-		print("\t%.4f\t%-15s\t\t%.4f\t%-15s"% (coef_1, fn_1, coef_2, fn_2))
+# adapted from 'http://stackoverflow.com/questions/11116697/how-to-get-most-informative-features-for-scikit-learn-classifiers'
+def print_top20(vectorizer, clf):
+    """Prints features with the highest coefficient values, per class"""
+    feature_names = vectorizer.get_feature_names()
+    table = PrettyTable()
+    print("Most informative features per class:")
+    for i, class_label in enumerate(clf.classes_):
+        top20 = np.argsort(clf.coef_[i])[-20:]
+        top20feats = [feature_names[j] for j in top20]
+        #print("Class %s:" % str(i))
+        #print(top20feats)
+        #could be used on big screens
+        table.add_column(str(i),top20feats)
+    print(table)
 
 # calculates accuracy
 def accuracy(y_true, y_predicted):
@@ -77,13 +85,13 @@ def main(argv):
 
 	print("training model...")
 	# parameters will be adapted to turn on/of binary mode and change ngram range
-	count_vectorizer_binary = CountVectorizer(ngram_range=(1,3)).fit(train_reviews['data'])
-	x_train = count_vectorizer_binary.transform(train_reviews['data'])
+	count_vectorizer = CountVectorizer(ngram_range=(1,3)).fit(train_reviews['data'])
+	x_train = count_vectorizer.transform(train_reviews['data'])
 
 	clf = LinearSVC()
 	clf.fit(x_train, train_reviews['target'])
 
-	x_test = count_vectorizer_binary.transform(test_reviews['data'])
+	x_test = count_vectorizer.transform(test_reviews['data'])
 	y_predicted = clf.predict(x_test)
 
 	# test against the case of simply always predicting a 5-star rating
@@ -91,8 +99,7 @@ def main(argv):
 
 	results(test_reviews['target'], y_predicted, allfive_predicted, test_reviews)
 
-	print("Most informative features: ")
-	show_most_important_features(count_vectorizer_binary, clf)
+	print_top20(count_vectorizer, clf)
 
 
 if __name__=='__main__':
