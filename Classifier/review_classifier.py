@@ -23,16 +23,16 @@ from nltk.stem.snowball import *
 def print_top20(vectorizer, clf):
     """Prints features with the highest coefficient values, per class"""
     feature_names = vectorizer.get_feature_names()
-    table = PrettyTable()
+    #table = PrettyTable()
     print("Most informative features per class:")
     for i, class_label in enumerate(clf.classes_):
         top20 = np.argsort(clf.coef_[i])[-20:]
         top20feats = [feature_names[j] for j in top20]
-        #print("Class %s:" % str(i))
-        #print(top20feats)
+        print("Class %s:" % str(i))
+        print(top20feats)
         #could be used on big screens
-        table.add_column(str(i),top20feats)
-    print(table)
+        #table.add_column(str(i),top20feats)
+    #print(table)
 
 # calculates accuracy
 def accuracy(y_true, y_predicted):
