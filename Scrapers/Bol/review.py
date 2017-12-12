@@ -14,12 +14,14 @@ class ReviewSpider(CrawlSpider):
 		super().__init__(*args, **kwargs)
 		self.url_file = url_file
 
+	# scrape reviews of each product link in url file
 	def start_requests(self):
 		with open(self.url_file, 'r') as f:
 			for url in f:
 				url = url.strip()
 				yield scrapy.Request(url, callback=self.parse)
 
+	# for each review, find and store the needed properties
 	def parse(self, response):
 		extractor = MicrodataExtractor()
 		try:

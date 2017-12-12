@@ -6,6 +6,7 @@ import scrapy
 from scrapy.linkextractors import LinkExtractor
 from scrapy.spiders import CrawlSpider, Rule
 
+# crawl through every product page by following page links
 class ProductSpider(CrawlSpider):
 	name = 'products'
 	start_urls = ["https://www.coolblue.nl/producttype:mobiele-telefoons"]

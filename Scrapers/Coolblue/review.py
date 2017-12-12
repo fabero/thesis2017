@@ -13,12 +13,15 @@ class ReviewSpider(CrawlSpider):
 		super().__init__(*args, **kwargs)
 		self.url_file = url_file
 
+	# scrape reviews of each product link in url file
 	def start_requests(self):
 		with open(self.url_file, 'r') as f:
 			for url in f:
 				url = url.strip()
 				yield scrapy.Request(url, callback=self.parse)
 
+	# for each review, find and store the needed properties
+	# also collect review votes to allow for further analysis (not actually used for this thesis)
 	def parse(self, response):
 		for review in response.css('li.reviews__list-item.js-review'):
 			yield {
